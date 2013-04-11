@@ -24,6 +24,7 @@ WorkforceManagement.zip includes files useful for creating/publishing the ArcGIS
 ## Requirements
 
 * Esri Javascript API version 3.0 
+[Esri's ArcGIS API for JavaScript](http://help.arcgis.com/en/webapi/javascript/arcgis/index.html)
 * Dojo dGrid
     * Automatic download with CPM: https://github.com/SitePen/dgrid#automatic-download-with-cpm 
     * Inline Javascript Manual Setup: https://github.com/SitePen/dgrid#manual-download
@@ -34,8 +35,8 @@ WorkforceManagement.zip includes files useful for creating/publishing the ArcGIS
 
 ## Resources
 
-This application uses the 2.8 version of
-[Esri's ArcGIS API for JavaScript](http://help.arcgis.com/en/webapi/javascript/arcgis/index.html);
+
+[This application uses the 3.0 version of the JavaScript API](http://help.arcgis.com/en/webapi/javascript/arcgis/index.html);
 see the site for concepts, samples, and a reference for using the API to create mapping web sites.
 
 [ArcGIS Blog](http://blogs.esri.com/esri/arcgis/)
