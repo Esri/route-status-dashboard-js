@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content=
+        "text/html; charset=us-ascii">
+        <title>
+            TA Sample Dashboard App
+        </title>
+
+        <link rel="stylesheet" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dgrid/css/dgrid.css">
+        <link rel="stylesheet" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dgrid/css/skins/claro.css">
+
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dojo/dijit/themes/claro/claro.css" />
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/esri/dijit/css/Popup.css" />
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dojo/dojox/layout/resources/FloatingPane.css" />
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dojo/dojox/layout/resources/ResizeHandle.css" />
+
+        <style type="text/css">
+        html, body { 
+          height: 100%; width: 100%; margin: 0; 
+        } 
+        body{
+          background-color:white;
+          font-family: "Trebuchet MS"; 
+        }
+        .alertsNotifier {
+            margin-left: 60px;
+            margin-top: -30px;
+            position: absolute;
+        }
+        #gridPane {
+          background-color:white;
+          height: 300px; /* using px instead of %, % changes as the window size chagnes */
+        }
+        #grid {
+          height: 100%;
+        }
+        #gridRoutes, #gridOrders, #gridAlerts {
+            height: 85%;
+        }
+        .claro .dijitContentPane {
+                        padding: 0px;
+                }
+        /*              .claro .dijitTabContainerTop-tabs .dijitTab {
+                        width: 49%;
+                }*/
+
+        .dojoxFloatingCloseIcon {
+            visibility: hidden;
+        }
+        .dijitDialogCloseIcon {
+            visibility: hidden;
+        }
+        #gridOrders .dgrid-column-sequence {
+            width: 85px;
+        }
+        #gridOrders .dgrid-column-address {
+            width: 345px;
+        }
+        #gridOrders .dgrid-column-type {
+            width: 80px;
+        }
+        #gridOrders .dgrid-column-priority {
+            width: 80px;
+        }
+        #gridOrders .dgrid-column-status {
+            width: 150px;
+        }
+
+        #gridAlerts .dgrid-column-id {
+            width: 15%;
+        }
+        #gridAlerts .dgrid-column-route {
+            width: 25%;
+        }
+        #gridAlerts .dgrid-column-type {
+            width: 25%;
+        }
+        #gridAlerts .dgrid-column-description {
+            width: 75%;
+        }
+        </style>
+
+        <script type="text/javascript" src="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/"></script>
+
+        <script type="text/javascript" src="config.js"></script>
+        <script type="text/javascript" src="app.js"></script>
+        <script type="text/javascript" src="EventQueue.js"></script>
+        <script type="text/javascript" src="VehiclesCollection.js"></script>
+        <script type="text/javascript" src="NavigatorPoint.js"></script>
+        <script type="text/javascript" src="TimeMachine.js"></script>
+        <script type="text/javascript" src="VehicleCommunicationSubsystem.js"></script>
+    </head>
+
+    <body class="claro">
+        <div id="mainWindow" 
+            data-dojo-type="dijit.layout.BorderContainer" 
+            data-dojo-props="design:'headline',gutters:false" 
+            style="width: 100%; height: 100%; margin: 0;">
+            
+            <div id="map" 
+                data-dojo-type="dijit.layout.ContentPane"
+                data-dojo-props="region:'center'">
+            </div>
+            
+            <div id="gridPane" 
+                data-dojo-type="dijit.layout.ContentPane" 
+                data-dojo-props="region: 'bottom', splitter: true">
+                
+                <div id="tabContainer"
+                    data-dojo-type="dijit.layout.TabContainer"
+                    data-dojo-props="tabPosition: 'top'">
+                    
+                    <div id="tbRoutes" 
+                        data-dojo-type="dijit.layout.ContentPane"
+                        title="Routes" selected="true">
+
+                        <div id="toolbarPane" 
+                            data-dojo-type="dijit.layout.ContentPane">
+
+                            <span id="toolbar"></span>
+
+                        </div>
+
+                        <div id="gridRoutes"></div>
+
+                    </div>
+
+                    <div id="tbOrders" 
+                        data-dojo-type="dijit.layout.ContentPane"
+                        title="Orders">
+
+                        <div id="toolbarPane2" 
+                            data-dojo-type="dijit.layout.ContentPane">
+
+                            <span id="toolbarOrders"></span>
+
+                        </div>
+
+                        <div id="gridOrders"></div>
+
+                    </div>
+
+                    <div id="tbAlerts"
+                        data-dojo-type="dijit.layout.ContentPane"
+                        title="Alerts">
+
+
+                        <div id="toolbarPane3" 
+                            data-dojo-type="dijit.layout.ContentPane">
+
+                            <span id="toolbarAlerts"></span>
+
+                        </div>
+
+                        <div id="gridAlerts"></div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+        </div>
+        <div id="dFloatingPane" 
+                data-dojo-type="dojox.layout.FloatingPane" 
+                title="Simulation Controls" 
+                data-dojo-props="resizable:false, dockable:false, title:'Simulation Controls'"
+                style="position:absolute;top:15px;right:15px;width:350px;height:150px;visibility:visible;z-index:9999999;">
+                
+                <button id="btnPlayPause" 
+                    type="button"
+                    data-dojo-type="dijit.form.Button">Play</button>
+
+                <br /><br />
+
+                <div id="sldSimulation"
+                    style="width:200px;" 
+                    data-dojo-type="dijit.form.HorizontalSlider"
+                    data-dojo-props="value:20, minimum:1, maximum:60, showButtons: false"></div>
+
+        </div>
+
+    </body>
+
+</html>

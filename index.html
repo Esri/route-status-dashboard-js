@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+    
+    <title>TA - Select Routes</title>
+    <head>
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dojo/dijit/themes/claro/claro.css" />
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dojo/dojox/layout/resources/FloatingPane.css" />
+        <link rel="stylesheet" type="text/css" href="http://serverapi.arcgisonline.com/jsapi/arcgis/3.0/js/dojo/dojox/layout/resources/ResizeHandle.css" />
+
+        <script type="text/javascript" src="http://servicesbeta.esri.com/jsapi/arcgis/3.0/"></script>
+        
+		<script type="text/javascript" src="config.js"></script>
+		
+		<script type="text/javascript">
+        require(
+
+            ['dojo/parser', 'dijit/form/MultiSelect', 'esri/Map', 'esri/tasks/query', 'esri/IdentityManager' , 'dijit/form/Button', 'dijit/form/CheckBox'],
+
+            function (parser, MultiSelect, Map, query, IdentityManager, Button, CheckBox) {
+                
+				// esri.config.defaults.io.proxyUrl = '../proxy.php';
+				esri.config.defaults.io.proxyUrl = '../proxy.ashx';
+
+                parser.parse();
+
+                var checkBox = new CheckBox({
+                    name: "checkBox",
+                    checked: false
+                }, "checkBox");
+
+                var btn = dijit.byId('btnLoad');
+                dojo.connect(btn, 'onClick', loadDashboard);
+
+                queryForNames();
+
+            }
+
+        );
+    
+        function queryForNames(devices) {
+            var queryUrl = dojo.string.substitute(config.Devices.url, [config.Host]);
+            var queryTask = new esri.tasks.QueryTask(queryUrl);
+            var query = new esri.tasks.Query();
+            query.where = "Deleted = 0";
+            query.outFields = ['OBJECTID', 'Name'];
+            query.orderByFields = ['OBJECTID ASC'];
+
+            var uniqueDevices = [],
+                uniqueNames = [],
+                testArr = [];
+
+            queryTask.execute(query, dojo.hitch(this,
+                function (fSet) {
+                    if (fSet.features.length > 0) {
+                        var features = fSet.features;
+                        dojo.forEach(features,
+                            function (feature) {
+                                if (!testArr[feature.attributes.OBJECTID]) {
+                                    testArr[feature.attributes.OBJECTID] = true;
+                                    uniqueDevices.push(feature.attributes.OBJECTID);
+                                    uniqueNames.push(feature.attributes.Name);
+                                }
+                            },
+                            this
+                        );
+
+                        var sel = dojo.byId('dynamic');
+                        dojo.forEach(uniqueDevices,
+                            function (device, index) {
+                                var c = document.createElement('option');
+                                c.innerHTML = uniqueNames[index];
+                                c.value = device;
+                                sel.appendChild(c);
+                            },
+                            this
+                        );
+
+                        var ms = new dijit.form.MultiSelect({
+                            name: 'dynamic',
+                            style: 'width:200px;height:200px;'
+                        }, sel);
+
+                    } else {
+
+                    }
+                }),
+                function (error) {
+                    console.log(error);
+                    alert(error.message);
+                }
+            );
+        }
+
+        function loadDashboard() {
+            console.log('something');
+            var useInAppSimulator = dojo.byId('checkBox').checked;
+            var ms = dijit.byId('dynamic');
+            var routes = ms.get('value');
+            //to get selected name from MultiSelect
+            //ms.domNode.options[ms.domNode.selectedIndex].text
+            var queryString = "?DeviceIDs=" + routes.join(',') + "&useInAppSimulator=" + useInAppSimulator;
+
+            var loc;
+            if (window.location.pathname.indexOf('index.html') > -1) {
+                loc = window.location.pathname.replace("index", "dashboard")
+            } else {
+                loc = window.location.pathname + 'dashboard.html';
+            }
+
+            var url = "http://" + window.location.host + loc + queryString;
+            console.log(url);
+
+            window.location = url;
+        }
+        </script>
+    </head>
+
+    <body class="claro">
+        
+        Select Routes:<br />
+        <div>
+            <select id="dynamic"></select> 
+        </div>
+            <br />
+            <br />
+        <input id="checkBox" /> <label for="checkBox">Use In-App Simulator (leave blank if you are using Navigator or a mobile Device)</label>
+        <br />
+        <br />
+        <button id="btnLoad" data-dojo-type="dijit.form.Button" type="button">Load Dashboard</button>
+        
+    </body>
+
+</html>
